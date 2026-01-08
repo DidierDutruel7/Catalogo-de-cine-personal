@@ -259,6 +259,12 @@ function delRow(i){
 }
 
 function render(){
+
+    // ordenar alfabéticamente por director
+    data.sort((a, b) =>
+        a.director.localeCompare(b.director, "es", { sensitivity: "base" })
+    );
+
     const tb = document.getElementById("tbody");
     tb.innerHTML = "";
     let vistas = 0;
