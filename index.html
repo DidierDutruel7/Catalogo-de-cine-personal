@@ -2,115 +2,185 @@
 <html lang="es">
 <head>
 <meta charset="UTF-8">
-<title>Catálogo personal de cine</title>
+<title>Catálogo de cine</title>
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
 <style>
+:root {
+    --bg: #fafafa;
+    --fg: #111;
+    --muted: #777;
+    --line: #e5e5e5;
+}
+
 body {
-    font-family: Arial, sans-serif;
-    background: #f5f5f5;
-    margin: 20px;
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Arial, sans-serif;
+    background: var(--bg);
+    color: var(--fg);
+    margin: 0;
+    padding: 40px 20px;
 }
-h1 {
+
+header {
     text-align: center;
+    margin-bottom: 30px;
 }
-.controls {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 10px;
-    justify-content: center;
-    margin-bottom: 15px;
+
+h1 {
+    font-size: 22px;
+    font-weight: 500;
+    margin-bottom: 18px;
 }
-input[type="text"] {
-    padding: 8px;
-    width: 280px;
+
+#search {
+    width: 100%;
+    max-width: 520px;
+    padding: 14px 16px;
+    font-size: 16px;
+    border: 1px solid var(--line);
+    border-radius: 24px;
+    outline: none;
 }
-button {
-    padding: 8px 12px;
+
+.stats {
+    margin-top: 14px;
+    font-size: 13px;
+    color: var(--muted);
+}
+
+.tools {
+    position: fixed;
+    top: 20px;
+    right: 20px;
+}
+
+.tools button {
+    background: none;
+    border: 1px solid var(--line);
+    border-radius: 20px;
+    padding: 8px 14px;
     cursor: pointer;
 }
-.stats {
-    text-align: center;
-    margin-bottom: 15px;
+
+.tools-menu {
+    display: none;
+    position: absolute;
+    right: 0;
+    margin-top: 8px;
+    background: white;
+    border: 1px solid var(--line);
+    border-radius: 8px;
+    box-shadow: 0 10px 30px rgba(0,0,0,.08);
 }
+
+.tools-menu button {
+    display: block;
+    width: 100%;
+    padding: 10px 16px;
+    border: none;
+    background: none;
+    text-align: left;
+    cursor: pointer;
+}
+
+.tools-menu button:hover {
+    background: #f0f0f0;
+}
+
 table {
     width: 100%;
     border-collapse: collapse;
-    background: white;
+    margin-top: 30px;
 }
-th, td {
-    border: 1px solid #ddd;
-    padding: 6px;
-    text-align: center;
-}
+
 th {
-    background: #eee;
+    font-size: 12px;
+    font-weight: 500;
+    color: var(--muted);
+    text-align: left;
+    padding: 10px;
+    border-bottom: 1px solid var(--line);
     cursor: pointer;
 }
-td input[type="text"], td input[type="number"] {
+
+td {
+    padding: 10px;
+    border-bottom: 1px solid var(--line);
+}
+
+td input[type="text"],
+td input[type="number"] {
     width: 100%;
     border: none;
+    background: transparent;
+    font-size: 14px;
 }
+
+td input:focus {
+    outline: none;
+}
+
 .modal {
     display: none;
     position: fixed;
     inset: 0;
-    background: rgba(0,0,0,0.8);
+    background: rgba(0,0,0,.85);
     justify-content: center;
     align-items: center;
 }
+
 .modal img {
     max-width: 90%;
     max-height: 90%;
 }
+
 .modal span {
     position: absolute;
-    top: 15px;
-    right: 25px;
-    font-size: 30px;
+    top: 20px;
+    right: 30px;
+    font-size: 28px;
     color: white;
     cursor: pointer;
-}
-canvas {
-    max-width: 100%;
-    margin-top: 20px;
 }
 </style>
 </head>
 
 <body>
 
-<h1>Catálogo personal de cine</h1>
-
-<div class="controls">
-    <input type="text" id="search" placeholder="Buscar por cualquier campo…">
-    <button onclick="addRow()">Añadir película</button>
-    <button onclick="exportCSV()">Exportar CSV</button>
-    <button onclick="importCSV()">Importar CSV</button>
-    <button onclick="backup()">Guardar copia</button>
-    <button onclick="restore()">Restaurar copia</button>
+<div class="tools">
+    <button onclick="toggleTools()">☰ Herramientas</button>
+    <div class="tools-menu" id="toolsMenu">
+        <button onclick="addRow()">Añadir película</button>
+        <button onclick="exportCSV()">Exportar CSV</button>
+        <button onclick="importCSV()">Importar CSV</button>
+        <button onclick="backup()">Guardar copia</button>
+        <button onclick="restore()">Restaurar copia</button>
+    </div>
 </div>
 
-<div class="stats">
-    Vistas: <span id="vistas">0</span> |
-    Pendientes: <span id="pendientes">0</span> |
-    Total: <span id="total">0</span>
-</div>
+<header>
+    <h1>Catálogo personal de cine</h1>
+    <input id="search" placeholder="Buscar por cualquier campo…">
+    <div class="stats">
+        Vistas: <span id="vistas">0</span> ·
+        Pendientes: <span id="pendientes">0</span> ·
+        Total: <span id="total">0</span>
+    </div>
+</header>
 
 <table id="tabla">
 <thead>
 <tr>
-    <th onclick="sortTable(0)">Director</th>
-    <th onclick="sortTable(1)">Película</th>
-    <th onclick="sortTable(2)">País</th>
-    <th onclick="sortTable(3)">Año</th>
+    <th>Director</th>
+    <th>Película</th>
+    <th>País</th>
+    <th>Año</th>
     <th>Portada</th>
-    <th onclick="sortTable(5)">Vista</th>
+    <th>Vista</th>
 </tr>
 </thead>
 <tbody></tbody>
 </table>
-
-<canvas id="grafico"></canvas>
 
 <div class="modal" id="modal">
     <span onclick="closeModal()">×</span>
@@ -120,18 +190,20 @@ canvas {
 <script>
 let data = JSON.parse(localStorage.getItem("peliculas")) || [];
 
-function save() {
-    localStorage.setItem("peliculas", JSON.stringify(data));
-    render();
+function save(){ localStorage.setItem("peliculas", JSON.stringify(data)); render(); }
+
+function toggleTools(){
+    const m = document.getElementById("toolsMenu");
+    m.style.display = m.style.display === "block" ? "none" : "block";
 }
 
-function addRow() {
-    data.push({director:"", pelicula:"", pais:"", año:"", vista:false, portada:null});
+function addRow(){
+    data.push({director:"", pelicula:"", pais:"", año:"", portada:null, vista:false});
     save();
 }
 
-function render() {
-    const tbody = document.querySelector("#tabla tbody");
+function render(){
+    const tbody = document.querySelector("tbody");
     tbody.innerHTML = "";
     let vistas = 0;
 
@@ -139,16 +211,15 @@ function render() {
         if(p.vista) vistas++;
         const tr = document.createElement("tr");
         tr.innerHTML = `
-        <td><input value="${p.director}" oninput="update(${i},'director',this.value)"></td>
-        <td><input value="${p.pelicula}" oninput="update(${i},'pelicula',this.value)"></td>
-        <td><input value="${p.pais}" oninput="update(${i},'pais',this.value)"></td>
-        <td><input type="number" value="${p.año}" oninput="update(${i},'año',this.value)"></td>
+        <td><input value="${p.director}" oninput="u(${i},'director',this.value)"></td>
+        <td><input value="${p.pelicula}" oninput="u(${i},'pelicula',this.value)"></td>
+        <td><input value="${p.pais}" oninput="u(${i},'pais',this.value)"></td>
+        <td><input type="number" value="${p.año}" oninput="u(${i},'año',this.value)"></td>
         <td>
-            <button onclick="uploadImage(${i})">Subir</button>
-            ${p.portada ? `<button onclick="viewImage(${i})">Ver</button>` : ""}
+            <button onclick="imgUp(${i})">Subir</button>
+            ${p.portada ? `<button onclick="imgView(${i})">Ver</button>` : ""}
         </td>
-        <td><input type="checkbox" ${p.vista?"checked":""} onchange="toggleVista(${i})"></td>
-        `;
+        <td><input type="checkbox" ${p.vista?"checked":""} onchange="toggle(${i})"></td>`;
         tbody.appendChild(tr);
     });
 
@@ -157,81 +228,63 @@ function render() {
     document.getElementById("pendientes").textContent = data.length - vistas;
 }
 
-function update(i,key,val){ data[i][key]=val; save(); }
-function toggleVista(i){ data[i].vista=!data[i].vista; save(); }
+function u(i,k,v){ data[i][k]=v; save(); }
+function toggle(i){ data[i].vista=!data[i].vista; save(); }
 
-function uploadImage(i){
-    const input = document.createElement("input");
-    input.type="file";
-    input.accept="image/*";
+function imgUp(i){
+    const input=document.createElement("input");
+    input.type="file"; input.accept="image/*";
     input.onchange=()=>{
-        const file=input.files[0];
-        const reader=new FileReader();
-        reader.onload=()=>{ data[i].portada=reader.result; save(); };
-        reader.readAsDataURL(file);
+        const r=new FileReader();
+        r.onload=()=>{ data[i].portada=r.result; save(); };
+        r.readAsDataURL(input.files[0]);
     };
     input.click();
 }
 
-function viewImage(i){
+function imgView(i){
     document.getElementById("modalImg").src=data[i].portada;
     document.getElementById("modal").style.display="flex";
 }
-function closeModal(){
-    document.getElementById("modal").style.display="none";
-}
+function closeModal(){ document.getElementById("modal").style.display="none"; }
 
 function exportCSV(){
     let csv="Director,Película,País,Año,Vista\n";
-    data.forEach(p=>{
-        csv+=`${p.director},${p.pelicula},${p.pais},${p.año},${p.vista}\n`;
-    });
-    download(csv,"catalogo.csv");
+    data.forEach(p=>csv+=`${p.director},${p.pelicula},${p.pais},${p.año},${p.vista}\n`);
+    dl(csv,"catalogo.csv");
 }
-
 function importCSV(){
-    const input=document.createElement("input");
-    input.type="file";
-    input.accept=".csv";
-    input.onchange=()=>{
-        const reader=new FileReader();
-        reader.onload=()=>{
-            const lines=reader.result.split("\n").slice(1);
-            data=lines.filter(l=>l).map(l=>{
+    const i=document.createElement("input");
+    i.type="file"; i.accept=".csv";
+    i.onchange=()=>{
+        const r=new FileReader();
+        r.onload=()=>{
+            data=r.result.split("\n").slice(1).filter(l=>l)
+            .map(l=>{
                 const [d,p,pa,a,v]=l.split(",");
-                return {director:d,pelicula:p,pais:pa,año:a,vista:v==="true",portada:null};
+                return {director:d,pelicula:p,pais:pa,año:a,portada:null,vista:v==="true"};
             });
             save();
         };
-        reader.readAsText(input.files[0]);
+        r.readAsText(i.files[0]);
     };
-    input.click();
+    i.click();
 }
-
-function backup(){
-    download(JSON.stringify(data),"catalogo_backup.json");
-}
-
+function backup(){ dl(JSON.stringify(data),"catalogo_backup.json"); }
 function restore(){
-    const input=document.createElement("input");
-    input.type="file";
-    input.accept=".json";
-    input.onchange=()=>{
-        const reader=new FileReader();
-        reader.onload=()=>{
-            data=JSON.parse(reader.result);
-            save();
-        };
-        reader.readAsText(input.files[0]);
+    const i=document.createElement("input");
+    i.type="file"; i.accept=".json";
+    i.onchange=()=>{
+        const r=new FileReader();
+        r.onload=()=>{ data=JSON.parse(r.result); save(); };
+        r.readAsText(i.files[0]);
     };
-    input.click();
+    i.click();
 }
-
-function download(content,name){
+function dl(c,n){
     const a=document.createElement("a");
-    a.href=URL.createObjectURL(new Blob([content]));
-    a.download=name;
-    a.click();
+    a.href=URL.createObjectURL(new Blob([c]));
+    a.download=n; a.click();
 }
 
 document.getElementById("search").oninput=function(){
