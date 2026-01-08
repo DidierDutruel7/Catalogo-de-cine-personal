@@ -6,141 +6,149 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
 <style>
-:root {
-    --bg: #fafafa;
-    --fg: #111;
-    --muted: #777;
-    --line: #e5e5e5;
+:root{
+    --bg:#fafafa;
+    --fg:#111;
+    --muted:#777;
+    --line:#e5e5e5;
 }
 
-body {
-    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Arial, sans-serif;
-    background: var(--bg);
-    color: var(--fg);
-    margin: 0;
-    padding: 40px 20px;
+body{
+    font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Arial,sans-serif;
+    background:var(--bg);
+    color:var(--fg);
+    margin:0;
+    padding:36px 18px;
 }
 
-header {
-    text-align: center;
-    margin-bottom: 30px;
+header{
+    text-align:center;
+    margin-bottom:22px;
 }
 
-h1 {
-    font-size: 22px;
-    font-weight: 500;
-    margin-bottom: 18px;
+h1{
+    font-size:21px;
+    font-weight:500;
+    margin-bottom:16px;
 }
 
-#search {
-    width: 100%;
-    max-width: 520px;
-    padding: 14px 16px;
-    font-size: 16px;
-    border: 1px solid var(--line);
-    border-radius: 24px;
-    outline: none;
+#search{
+    width:100%;
+    max-width:520px;
+    padding:12px 16px;
+    font-size:15px;
+    border:1px solid var(--line);
+    border-radius:22px;
+    outline:none;
 }
 
-.stats {
-    margin-top: 14px;
-    font-size: 13px;
-    color: var(--muted);
+.stats{
+    margin-top:12px;
+    font-size:12px;
+    color:var(--muted);
 }
 
-.tools {
-    position: fixed;
-    top: 20px;
-    right: 20px;
+.tools{
+    position:fixed;
+    top:18px;
+    right:18px;
 }
 
-.tools button {
-    background: none;
-    border: 1px solid var(--line);
-    border-radius: 20px;
-    padding: 8px 14px;
-    cursor: pointer;
+.tools button{
+    background:none;
+    border:1px solid var(--line);
+    border-radius:20px;
+    padding:7px 13px;
+    cursor:pointer;
 }
 
-.tools-menu {
-    display: none;
-    position: absolute;
-    right: 0;
-    margin-top: 8px;
-    background: white;
-    border: 1px solid var(--line);
-    border-radius: 8px;
-    box-shadow: 0 10px 30px rgba(0,0,0,.08);
+.tools-menu{
+    display:none;
+    position:absolute;
+    right:0;
+    margin-top:8px;
+    background:white;
+    border:1px solid var(--line);
+    border-radius:8px;
+    box-shadow:0 10px 30px rgba(0,0,0,.08);
 }
 
-.tools-menu button {
-    display: block;
-    width: 100%;
-    padding: 10px 16px;
-    border: none;
-    background: none;
-    text-align: left;
-    cursor: pointer;
+.tools-menu button{
+    width:100%;
+    padding:9px 15px;
+    border:none;
+    background:none;
+    text-align:left;
+    cursor:pointer;
+    font-size:13px;
 }
 
-.tools-menu button:hover {
-    background: #f0f0f0;
+.tools-menu button:hover{background:#f2f2f2}
+
+table{
+    width:100%;
+    border-collapse:collapse;
+    margin-top:26px;
 }
 
-table {
-    width: 100%;
-    border-collapse: collapse;
-    margin-top: 30px;
+th{
+    font-size:11px;
+    font-weight:500;
+    color:var(--muted);
+    text-align:left;
+    padding:6px 8px;
+    border-bottom:1px solid var(--line);
 }
 
-th {
-    font-size: 12px;
-    font-weight: 500;
-    color: var(--muted);
-    text-align: left;
-    padding: 10px;
-    border-bottom: 1px solid var(--line);
-    cursor: pointer;
-}
-
-td {
-    padding: 10px;
-    border-bottom: 1px solid var(--line);
+td{
+    padding:6px 8px;
+    border-bottom:1px solid var(--line);
+    font-size:14px;
+    line-height:1.2;
 }
 
 td input[type="text"],
-td input[type="number"] {
-    width: 100%;
-    border: none;
-    background: transparent;
-    font-size: 14px;
+td input[type="number"]{
+    width:100%;
+    border:none;
+    background:none;
+    font-size:14px;
+    line-height:1.2;
+    padding:0;
 }
 
-td input:focus {
-    outline: none;
+td input:focus{outline:none}
+
+.delete{
+    color:#bbb;
+    cursor:pointer;
+    font-size:16px;
+    visibility:hidden;
 }
 
-.modal {
-    display: none;
-    position: fixed;
-    inset: 0;
-    background: rgba(0,0,0,.85);
-    justify-content: center;
-    align-items: center;
+tr:hover .delete{visibility:visible}
+
+.modal{
+    display:none;
+    position:fixed;
+    inset:0;
+    background:rgba(0,0,0,.85);
+    justify-content:center;
+    align-items:center;
 }
 
-.modal img {
-    max-width: 90%;
-    max-height: 90%;
+.modal img{
+    max-width:90%;
+    max-height:90%;
 }
 
-.modal span {
-    position: absolute;
-    top: 20px;
-    right: 30px;
-    font-size: 28px;
-    color: white;
-    cursor: pointer;
+.modal span{
+    position:absolute;
+    top:20px;
+    right:30px;
+    font-size:28px;
+    color:white;
+    cursor:pointer;
 }
 </style>
 </head>
@@ -148,150 +156,117 @@ td input:focus {
 <body>
 
 <div class="tools">
-    <button onclick="toggleTools()">☰ Herramientas</button>
-    <div class="tools-menu" id="toolsMenu">
-        <button onclick="addRow()">Añadir película</button>
-        <button onclick="exportCSV()">Exportar CSV</button>
-        <button onclick="importCSV()">Importar CSV</button>
-        <button onclick="backup()">Guardar copia</button>
-        <button onclick="restore()">Restaurar copia</button>
-    </div>
+<button onclick="toggleTools()">☰</button>
+<div class="tools-menu" id="toolsMenu">
+<button onclick="addRow()">Añadir película</button>
+<button onclick="exportCSV()">Exportar CSV</button>
+<button onclick="importCSV()">Importar CSV</button>
+<button onclick="backup()">Guardar copia</button>
+<button onclick="restore()">Restaurar copia</button>
+</div>
 </div>
 
 <header>
-    <h1>Catálogo personal de cine</h1>
-    <input id="search" placeholder="Buscar por cualquier campo…">
-    <div class="stats">
-        Vistas: <span id="vistas">0</span> ·
-        Pendientes: <span id="pendientes">0</span> ·
-        Total: <span id="total">0</span>
-    </div>
+<h1>Catálogo personal de cine</h1>
+<input id="search" placeholder="Buscar…">
+<div class="stats">
+Vistas <span id="vistas">0</span> ·
+Pendientes <span id="pendientes">0</span> ·
+Total <span id="total">0</span>
+</div>
 </header>
 
-<table id="tabla">
+<table>
 <thead>
 <tr>
-    <th>Director</th>
-    <th>Película</th>
-    <th>País</th>
-    <th>Año</th>
-    <th>Portada</th>
-    <th>Vista</th>
+<th>Director</th>
+<th>Película</th>
+<th>País</th>
+<th>Año</th>
+<th>Portada</th>
+<th>Vista</th>
+<th></th>
 </tr>
 </thead>
-<tbody></tbody>
+<tbody id="tbody"></tbody>
 </table>
 
 <div class="modal" id="modal">
-    <span onclick="closeModal()">×</span>
-    <img id="modalImg">
+<span onclick="closeModal()">×</span>
+<img id="modalImg">
 </div>
 
 <script>
-let data = JSON.parse(localStorage.getItem("peliculas")) || [];
+let data=JSON.parse(localStorage.getItem("peliculas"))||[];
 
-function save(){ localStorage.setItem("peliculas", JSON.stringify(data)); render(); }
+function persist(){localStorage.setItem("peliculas",JSON.stringify(data));}
 
 function toggleTools(){
-    const m = document.getElementById("toolsMenu");
-    m.style.display = m.style.display === "block" ? "none" : "block";
+const m=document.getElementById("toolsMenu");
+m.style.display=m.style.display==="block"?"none":"block";
 }
 
 function addRow(){
-    data.push({director:"", pelicula:"", pais:"", año:"", portada:null, vista:false});
-    save();
+data.push({director:"",pelicula:"",pais:"",año:"",portada:null,vista:false});
+persist();render();
+}
+
+function delRow(i){
+if(confirm("¿Eliminar esta película?")){
+data.splice(i,1);
+persist();render();
+}
 }
 
 function render(){
-    const tbody = document.querySelector("tbody");
-    tbody.innerHTML = "";
-    let vistas = 0;
+const tb=document.getElementById("tbody");
+tb.innerHTML="";
+let v=0;
 
-    data.forEach((p,i)=>{
-        if(p.vista) vistas++;
-        const tr = document.createElement("tr");
-        tr.innerHTML = `
-        <td><input value="${p.director}" oninput="u(${i},'director',this.value)"></td>
-        <td><input value="${p.pelicula}" oninput="u(${i},'pelicula',this.value)"></td>
-        <td><input value="${p.pais}" oninput="u(${i},'pais',this.value)"></td>
-        <td><input type="number" value="${p.año}" oninput="u(${i},'año',this.value)"></td>
-        <td>
-            <button onclick="imgUp(${i})">Subir</button>
-            ${p.portada ? `<button onclick="imgView(${i})">Ver</button>` : ""}
-        </td>
-        <td><input type="checkbox" ${p.vista?"checked":""} onchange="toggle(${i})"></td>`;
-        tbody.appendChild(tr);
-    });
+data.forEach((p,i)=>{
+if(p.v) v++;
+const tr=document.createElement("tr");
+tr.innerHTML=`
+<td><input value="${p.director}" oninput="data[${i}].director=this.value;persist()"></td>
+<td><input value="${p.pelicula}" oninput="data[${i}].pelicula=this.value;persist()"></td>
+<td><input value="${p.pais}" oninput="data[${i}].pais=this.value;persist()"></td>
+<td><input type="number" value="${p.año}" oninput="data[${i}].año=this.value;persist()"></td>
+<td>
+<button onclick="imgUp(${i})">Subir</button>
+${p.portada?`<button onclick="imgView(${i})">Ver</button>`:""}
+</td>
+<td><input type="checkbox" ${p.vista?"checked":""} onchange="data[${i}].vista=this.checked;persist();render()"></td>
+<td class="delete" onclick="delRow(${i})">×</td>`;
+tb.appendChild(tr);
+});
 
-    document.getElementById("vistas").textContent = vistas;
-    document.getElementById("total").textContent = data.length;
-    document.getElementById("pendientes").textContent = data.length - vistas;
+document.getElementById("vistas").textContent=v;
+document.getElementById("total").textContent=data.length;
+document.getElementById("pendientes").textContent=data.length-v;
 }
 
-function u(i,k,v){ data[i][k]=v; save(); }
-function toggle(i){ data[i].vista=!data[i].vista; save(); }
-
 function imgUp(i){
-    const input=document.createElement("input");
-    input.type="file"; input.accept="image/*";
-    input.onchange=()=>{
-        const r=new FileReader();
-        r.onload=()=>{ data[i].portada=r.result; save(); };
-        r.readAsDataURL(input.files[0]);
-    };
-    input.click();
+const f=document.createElement("input");
+f.type="file";f.accept="image/*";
+f.onchange=()=>{
+const r=new FileReader();
+r.onload=()=>{data[i].portada=r.result;persist();render();}
+r.readAsDataURL(f.files[0]);
+};
+f.click();
 }
 
 function imgView(i){
-    document.getElementById("modalImg").src=data[i].portada;
-    document.getElementById("modal").style.display="flex";
+modalImg.src=data[i].portada;
+modal.style.display="flex";
 }
-function closeModal(){ document.getElementById("modal").style.display="none"; }
-
-function exportCSV(){
-    let csv="Director,Película,País,Año,Vista\n";
-    data.forEach(p=>csv+=`${p.director},${p.pelicula},${p.pais},${p.año},${p.vista}\n`);
-    dl(csv,"catalogo.csv");
-}
-function importCSV(){
-    const i=document.createElement("input");
-    i.type="file"; i.accept=".csv";
-    i.onchange=()=>{
-        const r=new FileReader();
-        r.onload=()=>{
-            data=r.result.split("\n").slice(1).filter(l=>l)
-            .map(l=>{
-                const [d,p,pa,a,v]=l.split(",");
-                return {director:d,pelicula:p,pais:pa,año:a,portada:null,vista:v==="true"};
-            });
-            save();
-        };
-        r.readAsText(i.files[0]);
-    };
-    i.click();
-}
-function backup(){ dl(JSON.stringify(data),"catalogo_backup.json"); }
-function restore(){
-    const i=document.createElement("input");
-    i.type="file"; i.accept=".json";
-    i.onchange=()=>{
-        const r=new FileReader();
-        r.onload=()=>{ data=JSON.parse(r.result); save(); };
-        r.readAsText(i.files[0]);
-    };
-    i.click();
-}
-function dl(c,n){
-    const a=document.createElement("a");
-    a.href=URL.createObjectURL(new Blob([c]));
-    a.download=n; a.click();
-}
+function closeModal(){modal.style.display="none"}
 
 document.getElementById("search").oninput=function(){
-    const q=this.value.toLowerCase();
-    document.querySelectorAll("tbody tr").forEach(r=>{
-        r.style.display=r.innerText.toLowerCase().includes(q)?"":"none";
-    });
+const q=this.value.toLowerCase();
+document.querySelectorAll("tbody tr").forEach(r=>{
+r.style.display=r.innerText.toLowerCase().includes(q)?"":"none";
+});
 };
 
 render();
