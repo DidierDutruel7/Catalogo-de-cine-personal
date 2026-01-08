@@ -1,142 +1,248 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Catálogo de Películas</title>
-  <style>
-    body {
-      font-family: Arial, Helvetica, sans-serif;
-      background: #fff;
-      color: #222;
-      margin: 0;
-      padding: 0;
-    }
-    .container {
-      max-width: 900px;
-      margin: 0 auto;
-      padding: 40px 20px;
-    }
-    h1 {
-      text-align: center;
-      font-weight: 400;
-      margin-bottom: 30px;
-    }
-    input[type="text"] {
-      width: 100%;
-      padding: 14px;
-      font-size: 16px;
-      border: 1px solid #ccc;
-      border-radius: 8px;
-      margin-bottom: 30px;
-    }
-    table {
-      width: 100%;
-      border-collapse: collapse;
-    }
-    th, td {
-      padding: 10px;
-      border-bottom: 1px solid #eee;
-      text-align: left;
-    }
-    th {
-      font-weight: 500;
-    }
-    .stats {
-      display: flex;
-      gap: 20px;
-      margin-bottom: 20px;
-    }
-    .stat {
-      background: #f7f7f7;
-      padding: 15px;
-      border-radius: 8px;
-      flex: 1;
-      text-align: center;
-    }
-    .stat span {
-      display: block;
-      font-size: 24px;
-      margin-top: 5px;
-    }
-    input[type="checkbox"] {
-      transform: scale(1.2);
-    }
-  </style>
+<meta charset="UTF-8">
+<title>Catálogo personal de cine</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<style>
+body {
+    font-family: Arial, sans-serif;
+    background: #f5f5f5;
+    margin: 20px;
+}
+h1 {
+    text-align: center;
+}
+.controls {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+    justify-content: center;
+    margin-bottom: 15px;
+}
+input[type="text"] {
+    padding: 8px;
+    width: 280px;
+}
+button {
+    padding: 8px 12px;
+    cursor: pointer;
+}
+.stats {
+    text-align: center;
+    margin-bottom: 15px;
+}
+table {
+    width: 100%;
+    border-collapse: collapse;
+    background: white;
+}
+th, td {
+    border: 1px solid #ddd;
+    padding: 6px;
+    text-align: center;
+}
+th {
+    background: #eee;
+    cursor: pointer;
+}
+td input[type="text"], td input[type="number"] {
+    width: 100%;
+    border: none;
+}
+.modal {
+    display: none;
+    position: fixed;
+    inset: 0;
+    background: rgba(0,0,0,0.8);
+    justify-content: center;
+    align-items: center;
+}
+.modal img {
+    max-width: 90%;
+    max-height: 90%;
+}
+.modal span {
+    position: absolute;
+    top: 15px;
+    right: 25px;
+    font-size: 30px;
+    color: white;
+    cursor: pointer;
+}
+canvas {
+    max-width: 100%;
+    margin-top: 20px;
+}
+</style>
 </head>
+
 <body>
-  <div class="container">
-    <h1>🎬 Catálogo de Películas</h1>
 
-    <div class="stats">
-      <div class="stat">Vistas<span id="vistas">0</span></div>
-      <div class="stat">Pendientes<span id="pendientes">0</span></div>
-      <div class="stat">Total<span id="total">0</span></div>
-    </div>
+<h1>Catálogo personal de cine</h1>
 
-    <input type="text" id="search" placeholder="Buscar por director, película, país o año..." />
+<div class="controls">
+    <input type="text" id="search" placeholder="Buscar por cualquier campo…">
+    <button onclick="addRow()">Añadir película</button>
+    <button onclick="exportCSV()">Exportar CSV</button>
+    <button onclick="importCSV()">Importar CSV</button>
+    <button onclick="backup()">Guardar copia</button>
+    <button onclick="restore()">Restaurar copia</button>
+</div>
 
-    <table id="tabla">
-      <thead>
-        <tr>
-          <th>Director</th>
-          <th>Película</th>
-          <th>País</th>
-          <th>Año</th>
-          <th>Vista</th>
-        </tr>
-      </thead>
-      <tbody id="tbody"></tbody>
-    </table>
-  </div>
+<div class="stats">
+    Vistas: <span id="vistas">0</span> |
+    Pendientes: <span id="pendientes">0</span> |
+    Total: <span id="total">0</span>
+</div>
 
-  <script>
-    let peliculas = JSON.parse(localStorage.getItem('peliculas')) || [];
+<table id="tabla">
+<thead>
+<tr>
+    <th onclick="sortTable(0)">Director</th>
+    <th onclick="sortTable(1)">Película</th>
+    <th onclick="sortTable(2)">País</th>
+    <th onclick="sortTable(3)">Año</th>
+    <th>Portada</th>
+    <th onclick="sortTable(5)">Vista</th>
+</tr>
+</thead>
+<tbody></tbody>
+</table>
 
-    function render() {
-      const tbody = document.getElementById('tbody');
-      tbody.innerHTML = '';
+<canvas id="grafico"></canvas>
 
-      const search = document.getElementById('search').value.toLowerCase();
+<div class="modal" id="modal">
+    <span onclick="closeModal()">×</span>
+    <img id="modalImg">
+</div>
 
-      peliculas.filter(p =>
-        Object.values(p).join(' ').toLowerCase().includes(search)
-      ).forEach((p, i) => {
-        const tr = document.createElement('tr');
+<script>
+let data = JSON.parse(localStorage.getItem("peliculas")) || [];
+
+function save() {
+    localStorage.setItem("peliculas", JSON.stringify(data));
+    render();
+}
+
+function addRow() {
+    data.push({director:"", pelicula:"", pais:"", año:"", vista:false, portada:null});
+    save();
+}
+
+function render() {
+    const tbody = document.querySelector("#tabla tbody");
+    tbody.innerHTML = "";
+    let vistas = 0;
+
+    data.forEach((p,i)=>{
+        if(p.vista) vistas++;
+        const tr = document.createElement("tr");
         tr.innerHTML = `
-          <td contenteditable onblur="update(${i}, 'director', this.innerText)">${p.director}</td>
-          <td contenteditable onblur="update(${i}, 'pelicula', this.innerText)">${p.pelicula}</td>
-          <td contenteditable onblur="update(${i}, 'pais', this.innerText)">${p.pais}</td>
-          <td contenteditable onblur="update(${i}, 'anio', this.innerText)">${p.anio}</td>
-          <td><input type="checkbox" ${p.vista ? 'checked' : ''} onchange="toggle(${i})" /></td>
+        <td><input value="${p.director}" oninput="update(${i},'director',this.value)"></td>
+        <td><input value="${p.pelicula}" oninput="update(${i},'pelicula',this.value)"></td>
+        <td><input value="${p.pais}" oninput="update(${i},'pais',this.value)"></td>
+        <td><input type="number" value="${p.año}" oninput="update(${i},'año',this.value)"></td>
+        <td>
+            <button onclick="uploadImage(${i})">Subir</button>
+            ${p.portada ? `<button onclick="viewImage(${i})">Ver</button>` : ""}
+        </td>
+        <td><input type="checkbox" ${p.vista?"checked":""} onchange="toggleVista(${i})"></td>
         `;
         tbody.appendChild(tr);
-      });
+    });
 
-      document.getElementById('vistas').innerText = peliculas.filter(p => p.vista).length;
-      document.getElementById('pendientes').innerText = peliculas.filter(p => !p.vista).length;
-      document.getElementById('total').innerText = peliculas.length;
-    }
+    document.getElementById("vistas").textContent = vistas;
+    document.getElementById("total").textContent = data.length;
+    document.getElementById("pendientes").textContent = data.length - vistas;
+}
 
-    function update(i, field, value) {
-      peliculas[i][field] = value;
-      save();
-    }
+function update(i,key,val){ data[i][key]=val; save(); }
+function toggleVista(i){ data[i].vista=!data[i].vista; save(); }
 
-    function toggle(i) {
-      peliculas[i].vista = !peliculas[i].vista;
-      save();
-    }
+function uploadImage(i){
+    const input = document.createElement("input");
+    input.type="file";
+    input.accept="image/*";
+    input.onchange=()=>{
+        const file=input.files[0];
+        const reader=new FileReader();
+        reader.onload=()=>{ data[i].portada=reader.result; save(); };
+        reader.readAsDataURL(file);
+    };
+    input.click();
+}
 
-    function save() {
-      localStorage.setItem('peliculas', JSON.stringify(peliculas));
-      render();
-    }
+function viewImage(i){
+    document.getElementById("modalImg").src=data[i].portada;
+    document.getElementById("modal").style.display="flex";
+}
+function closeModal(){
+    document.getElementById("modal").style.display="none";
+}
 
-    document.getElementById('search').addEventListener('input', render);
+function exportCSV(){
+    let csv="Director,Película,País,Año,Vista\n";
+    data.forEach(p=>{
+        csv+=`${p.director},${p.pelicula},${p.pais},${p.año},${p.vista}\n`;
+    });
+    download(csv,"catalogo.csv");
+}
 
-    peliculas.push({ director: '', pelicula: '', pais: '', anio: '', vista: false });
-    save();
-  </script>
+function importCSV(){
+    const input=document.createElement("input");
+    input.type="file";
+    input.accept=".csv";
+    input.onchange=()=>{
+        const reader=new FileReader();
+        reader.onload=()=>{
+            const lines=reader.result.split("\n").slice(1);
+            data=lines.filter(l=>l).map(l=>{
+                const [d,p,pa,a,v]=l.split(",");
+                return {director:d,pelicula:p,pais:pa,año:a,vista:v==="true",portada:null};
+            });
+            save();
+        };
+        reader.readAsText(input.files[0]);
+    };
+    input.click();
+}
+
+function backup(){
+    download(JSON.stringify(data),"catalogo_backup.json");
+}
+
+function restore(){
+    const input=document.createElement("input");
+    input.type="file";
+    input.accept=".json";
+    input.onchange=()=>{
+        const reader=new FileReader();
+        reader.onload=()=>{
+            data=JSON.parse(reader.result);
+            save();
+        };
+        reader.readAsText(input.files[0]);
+    };
+    input.click();
+}
+
+function download(content,name){
+    const a=document.createElement("a");
+    a.href=URL.createObjectURL(new Blob([content]));
+    a.download=name;
+    a.click();
+}
+
+document.getElementById("search").oninput=function(){
+    const q=this.value.toLowerCase();
+    document.querySelectorAll("tbody tr").forEach(r=>{
+        r.style.display=r.innerText.toLowerCase().includes(q)?"":"none";
+    });
+};
+
+render();
+</script>
+
 </body>
 </html>
