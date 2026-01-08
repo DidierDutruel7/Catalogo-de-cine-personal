@@ -1,0 +1,142 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Catálogo de Películas</title>
+  <style>
+    body {
+      font-family: Arial, Helvetica, sans-serif;
+      background: #fff;
+      color: #222;
+      margin: 0;
+      padding: 0;
+    }
+    .container {
+      max-width: 900px;
+      margin: 0 auto;
+      padding: 40px 20px;
+    }
+    h1 {
+      text-align: center;
+      font-weight: 400;
+      margin-bottom: 30px;
+    }
+    input[type="text"] {
+      width: 100%;
+      padding: 14px;
+      font-size: 16px;
+      border: 1px solid #ccc;
+      border-radius: 8px;
+      margin-bottom: 30px;
+    }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+    }
+    th, td {
+      padding: 10px;
+      border-bottom: 1px solid #eee;
+      text-align: left;
+    }
+    th {
+      font-weight: 500;
+    }
+    .stats {
+      display: flex;
+      gap: 20px;
+      margin-bottom: 20px;
+    }
+    .stat {
+      background: #f7f7f7;
+      padding: 15px;
+      border-radius: 8px;
+      flex: 1;
+      text-align: center;
+    }
+    .stat span {
+      display: block;
+      font-size: 24px;
+      margin-top: 5px;
+    }
+    input[type="checkbox"] {
+      transform: scale(1.2);
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1>🎬 Catálogo de Películas</h1>
+
+    <div class="stats">
+      <div class="stat">Vistas<span id="vistas">0</span></div>
+      <div class="stat">Pendientes<span id="pendientes">0</span></div>
+      <div class="stat">Total<span id="total">0</span></div>
+    </div>
+
+    <input type="text" id="search" placeholder="Buscar por director, película, país o año..." />
+
+    <table id="tabla">
+      <thead>
+        <tr>
+          <th>Director</th>
+          <th>Película</th>
+          <th>País</th>
+          <th>Año</th>
+          <th>Vista</th>
+        </tr>
+      </thead>
+      <tbody id="tbody"></tbody>
+    </table>
+  </div>
+
+  <script>
+    let peliculas = JSON.parse(localStorage.getItem('peliculas')) || [];
+
+    function render() {
+      const tbody = document.getElementById('tbody');
+      tbody.innerHTML = '';
+
+      const search = document.getElementById('search').value.toLowerCase();
+
+      peliculas.filter(p =>
+        Object.values(p).join(' ').toLowerCase().includes(search)
+      ).forEach((p, i) => {
+        const tr = document.createElement('tr');
+        tr.innerHTML = `
+          <td contenteditable onblur="update(${i}, 'director', this.innerText)">${p.director}</td>
+          <td contenteditable onblur="update(${i}, 'pelicula', this.innerText)">${p.pelicula}</td>
+          <td contenteditable onblur="update(${i}, 'pais', this.innerText)">${p.pais}</td>
+          <td contenteditable onblur="update(${i}, 'anio', this.innerText)">${p.anio}</td>
+          <td><input type="checkbox" ${p.vista ? 'checked' : ''} onchange="toggle(${i})" /></td>
+        `;
+        tbody.appendChild(tr);
+      });
+
+      document.getElementById('vistas').innerText = peliculas.filter(p => p.vista).length;
+      document.getElementById('pendientes').innerText = peliculas.filter(p => !p.vista).length;
+      document.getElementById('total').innerText = peliculas.length;
+    }
+
+    function update(i, field, value) {
+      peliculas[i][field] = value;
+      save();
+    }
+
+    function toggle(i) {
+      peliculas[i].vista = !peliculas[i].vista;
+      save();
+    }
+
+    function save() {
+      localStorage.setItem('peliculas', JSON.stringify(peliculas));
+      render();
+    }
+
+    document.getElementById('search').addEventListener('input', render);
+
+    peliculas.push({ director: '', pelicula: '', pais: '', anio: '', vista: false });
+    save();
+  </script>
+</body>
+</html>
