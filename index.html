@@ -109,7 +109,7 @@ td{
     line-height:1.2;
 }
 
-/* 🔑 INPUTS TOTALMENTE FLOTANTES */
+/* Inputs totalmente flotantes */
 td input{
     width:100%;
     border:0 !important;
@@ -124,7 +124,7 @@ td input{
     -moz-appearance:none;
 }
 
-/* eliminar flechas del input number */
+/* quitar flechas del number */
 input[type=number]::-webkit-inner-spin-button,
 input[type=number]::-webkit-outer-spin-button{
     -webkit-appearance:none;
@@ -186,7 +186,7 @@ tr:hover .delete{
 
 <header>
 <h1>Catálogo personal de cine</h1>
-<input id="search" placeholder="Buscar…">
+<input id="search" placeholder="Buscar… (dir:, nat:, prod:, pel:, año:)">
 <div class="stats">
 Vistas <span id="vistas">0</span> ·
 Pendientes <span id="pendientes">0</span> ·
@@ -199,10 +199,11 @@ Total <span id="total">0</span>
 <tr>
 <th>Director</th>
 <th>Película</th>
+<th>Nacionalidad</th>
 <th>País</th>
 <th>Año</th>
-<th>Portada</th>
 <th>Vista</th>
+<th>Portada</th>
 <th></th>
 </tr>
 </thead>
@@ -227,7 +228,15 @@ function toggleTools(){
 }
 
 function addRow(){
-    data.push({director:"", pelicula:"", pais:"", año:"", portada:null, vista:false});
+    data.push({
+        director:"",
+        pelicula:"",
+        nacionalidad:"",
+        pais:"",
+        año:"",
+        portada:null,
+        vista:false
+    });
     persist();
     render();
 }
@@ -241,6 +250,12 @@ function delRow(i){
 }
 
 function render(){
+
+    // ordenar alfabéticamente por director
+    data.sort((a, b) =>
+        a.director.localeCompare(b.director, "es", { sensitivity: "base" })
+    );
+
     const tb = document.getElementById("tbody");
     tb.innerHTML = "";
     let vistas = 0;
@@ -251,14 +266,15 @@ function render(){
         tr.innerHTML = `
 <td><input value="${p.director}" oninput="data[${i}].director=this.value;persist()"></td>
 <td><input value="${p.pelicula}" oninput="data[${i}].pelicula=this.value;persist()"></td>
+<td><input value="${p.nacionalidad}" oninput="data[${i}].nacionalidad=this.value;persist()"></td>
 <td><input value="${p.pais}" oninput="data[${i}].pais=this.value;persist()"></td>
 <td><input type="number" value="${p.año}" oninput="data[${i}].año=this.value;persist()"></td>
+<td><input type="checkbox" ${p.vista?"checked":""}
+    onchange="data[${i}].vista=this.checked;persist();render()"></td>
 <td>
 <button onclick="imgUp(${i})">Subir</button>
 ${p.portada ? `<button onclick="imgView(${i})">Ver</button>` : ""}
 </td>
-<td><input type="checkbox" ${p.vista?"checked":""}
-    onchange="data[${i}].vista=this.checked;persist();render()"></td>
 <td class="delete" onclick="delRow(${i})">×</td>
         `;
         tb.appendChild(tr);
@@ -294,10 +310,33 @@ function closeModal(){
     modal.style.display = "none";
 }
 
+/* 🔍 BUSCADOR CON PREFIJOS */
 document.getElementById("search").oninput = function(){
-    const q = this.value.toLowerCase();
-    document.querySelectorAll("#tbody tr").forEach(r=>{
-        r.style.display = r.innerText.toLowerCase().includes(q) ? "" : "none";
+    const q = this.value.toLowerCase().trim();
+    let field = null;
+    let term = q;
+
+    if(q.includes(":")){
+        const parts = q.split(":");
+        field = parts[0];
+        term = parts.slice(1).join(":");
+    }
+
+    document.querySelectorAll("#tbody tr").forEach((r,i)=>{
+        const p = data[i];
+        let hay = false;
+
+        if(field){
+            if(field==="dir") hay = p.director.toLowerCase().includes(term);
+            if(field==="pel") hay = p.pelicula.toLowerCase().includes(term);
+            if(field==="nat") hay = p.nacionalidad.toLowerCase().includes(term);
+            if(field==="prod") hay = p.pais.toLowerCase().includes(term);
+            if(field==="año") hay = String(p.año).includes(term);
+        }else{
+            hay = Object.values(p).join(" ").toLowerCase().includes(term);
+        }
+
+        r.style.display = hay ? "" : "none";
     });
 };
 
