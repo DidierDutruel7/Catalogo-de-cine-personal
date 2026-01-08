@@ -8,19 +8,19 @@
 body {
     font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
     background: #fff;
-    margin: 28px;
+    margin: 26px;
     color: #111;
 }
 
 h1 {
-    font-size: 20px;
+    font-size: 19px;
     font-weight: 400;
-    margin-bottom: 14px;
+    margin-bottom: 12px;
 }
 
 /* BUSCADOR */
 #search {
-    width: 260px;
+    width: 240px;
     font-size: 13px;
     border: none;
     border-bottom: 1px solid #111;
@@ -32,7 +32,7 @@ h1 {
 table {
     width: 100%;
     border-collapse: collapse;
-    margin-top: 16px;
+    margin-top: 14px;
 }
 
 th {
@@ -40,17 +40,17 @@ th {
     font-weight: 500;
     text-transform: uppercase;
     letter-spacing: .04em;
-    padding-bottom: 6px;
+    padding-bottom: 5px;
     border-bottom: 1px solid #111;
 }
 
 td {
-    padding: 3px 2px;
+    padding: 2px 2px;
     border-bottom: 1px solid #e6e6e6;
     vertical-align: middle;
 }
 
-/* INPUTS COMPLETAMENTE INVISIBLES */
+/* INPUTS FLOTANTES (SIN CAJA) */
 input[type="text"],
 input[type="number"] {
     border: none;
@@ -67,9 +67,10 @@ input[type="number"] {
 /* CHECK */
 input[type="checkbox"] {
     transform: scale(.85);
+    cursor: pointer;
 }
 
-/* BOTONES MINIMAL */
+/* BOTONES */
 button {
     background: none;
     border: none;
@@ -100,7 +101,7 @@ button:hover {
 
 /* AGREGAR */
 .add {
-    margin-top: 12px;
+    margin-top: 10px;
     font-size: 12px;
 }
 </style>
@@ -186,6 +187,10 @@ function render() {
     const tbody = document.getElementById("rows");
     const q = document.getElementById("search").value.toLowerCase();
 
+    /* ORDEN:
+       1. Director (A–Z)
+       2. Año (antiguo → reciente)
+    */
     data.sort((a, b) => {
         const d = a.director.localeCompare(b.director, "es", { sensitivity: "base" });
         if (d !== 0) return d;
@@ -205,7 +210,10 @@ function render() {
 <td><input value="${f.nationality}" oninput="data[${i}].nationality=this.value;save()"></td>
 <td><input value="${f.country}" oninput="data[${i}].country=this.value;save()"></td>
 <td><input type="number" value="${f.year}" oninput="data[${i}].year=this.value;save()"></td>
-<td><input type="checkbox" ${f.seen ? "checked" : ""} onchange="data[${i}].seen=this.checked;save()"></td>
+<td style="text-align:center">
+    <input type="checkbox" ${f.seen ? "checked" : ""} 
+           onchange="data[${i}].seen=this.checked;save()">
+</td>
 <td>
     <button onclick="openCover('${f.cover}')">ver</button>
     <input type="file" accept="image/*" onchange="uploadCover(event, ${i})">
