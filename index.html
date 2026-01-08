@@ -2,7 +2,7 @@
 <html lang="es">
 <head>
 <meta charset="UTF-8">
-<title>Catálogo de cine</title>
+<title>Catálogo personal de cine</title>
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
 <style>
@@ -83,7 +83,9 @@ h1{
     font-size:13px;
 }
 
-.tools-menu button:hover{background:#f2f2f2}
+.tools-menu button:hover{
+    background:#f2f2f2;
+}
 
 table{
     width:100%;
@@ -107,6 +109,7 @@ td{
     line-height:1.2;
 }
 
+/* 🔑 INPUTS TOTALMENTE FLOTANTES */
 td input{
     width:100%;
     border:0 !important;
@@ -119,8 +122,17 @@ td input{
     appearance:none;
     -webkit-appearance:none;
     -moz-appearance:none;
+}
 
-td input:focus{outline:none}
+/* eliminar flechas del input number */
+input[type=number]::-webkit-inner-spin-button,
+input[type=number]::-webkit-outer-spin-button{
+    -webkit-appearance:none;
+    margin:0;
+}
+input[type=number]{
+    -moz-appearance:textfield;
+}
 
 .delete{
     color:#bbb;
@@ -129,7 +141,9 @@ td input:focus{outline:none}
     visibility:hidden;
 }
 
-tr:hover .delete{visibility:visible}
+tr:hover .delete{
+    visibility:visible;
+}
 
 .modal{
     display:none;
@@ -138,6 +152,7 @@ tr:hover .delete{visibility:visible}
     background:rgba(0,0,0,.85);
     justify-content:center;
     align-items:center;
+    z-index:10;
 }
 
 .modal img{
@@ -200,76 +215,90 @@ Total <span id="total">0</span>
 </div>
 
 <script>
-let data=JSON.parse(localStorage.getItem("peliculas"))||[];
+let data = JSON.parse(localStorage.getItem("peliculas")) || [];
 
-function persist(){localStorage.setItem("peliculas",JSON.stringify(data));}
+function persist(){
+    localStorage.setItem("peliculas", JSON.stringify(data));
+}
 
 function toggleTools(){
-const m=document.getElementById("toolsMenu");
-m.style.display=m.style.display==="block"?"none":"block";
+    const m = document.getElementById("toolsMenu");
+    m.style.display = m.style.display === "block" ? "none" : "block";
 }
 
 function addRow(){
-data.push({director:"",pelicula:"",pais:"",año:"",portada:null,vista:false});
-persist();render();
+    data.push({director:"", pelicula:"", pais:"", año:"", portada:null, vista:false});
+    persist();
+    render();
 }
 
 function delRow(i){
-if(confirm("¿Eliminar esta película?")){
-data.splice(i,1);
-persist();render();
-}
+    if(confirm("¿Eliminar esta película?")){
+        data.splice(i,1);
+        persist();
+        render();
+    }
 }
 
 function render(){
-const tb=document.getElementById("tbody");
-tb.innerHTML="";
-let v=0;
+    const tb = document.getElementById("tbody");
+    tb.innerHTML = "";
+    let vistas = 0;
 
-data.forEach((p,i)=>{
-if(p.v) v++;
-const tr=document.createElement("tr");
-tr.innerHTML=`
+    data.forEach((p,i)=>{
+        if(p.vista) vistas++;
+        const tr = document.createElement("tr");
+        tr.innerHTML = `
 <td><input value="${p.director}" oninput="data[${i}].director=this.value;persist()"></td>
 <td><input value="${p.pelicula}" oninput="data[${i}].pelicula=this.value;persist()"></td>
 <td><input value="${p.pais}" oninput="data[${i}].pais=this.value;persist()"></td>
 <td><input type="number" value="${p.año}" oninput="data[${i}].año=this.value;persist()"></td>
 <td>
 <button onclick="imgUp(${i})">Subir</button>
-${p.portada?`<button onclick="imgView(${i})">Ver</button>`:""}
+${p.portada ? `<button onclick="imgView(${i})">Ver</button>` : ""}
 </td>
-<td><input type="checkbox" ${p.vista?"checked":""} onchange="data[${i}].vista=this.checked;persist();render()"></td>
-<td class="delete" onclick="delRow(${i})">×</td>`;
-tb.appendChild(tr);
-});
+<td><input type="checkbox" ${p.vista?"checked":""}
+    onchange="data[${i}].vista=this.checked;persist();render()"></td>
+<td class="delete" onclick="delRow(${i})">×</td>
+        `;
+        tb.appendChild(tr);
+    });
 
-document.getElementById("vistas").textContent=v;
-document.getElementById("total").textContent=data.length;
-document.getElementById("pendientes").textContent=data.length-v;
+    document.getElementById("vistas").textContent = vistas;
+    document.getElementById("total").textContent = data.length;
+    document.getElementById("pendientes").textContent = data.length - vistas;
 }
 
 function imgUp(i){
-const f=document.createElement("input");
-f.type="file";f.accept="image/*";
-f.onchange=()=>{
-const r=new FileReader();
-r.onload=()=>{data[i].portada=r.result;persist();render();}
-r.readAsDataURL(f.files[0]);
-};
-f.click();
+    const f = document.createElement("input");
+    f.type = "file";
+    f.accept = "image/*";
+    f.onchange = ()=>{
+        const r = new FileReader();
+        r.onload = ()=>{
+            data[i].portada = r.result;
+            persist();
+            render();
+        };
+        r.readAsDataURL(f.files[0]);
+    };
+    f.click();
 }
 
 function imgView(i){
-modalImg.src=data[i].portada;
-modal.style.display="flex";
+    modalImg.src = data[i].portada;
+    modal.style.display = "flex";
 }
-function closeModal(){modal.style.display="none"}
 
-document.getElementById("search").oninput=function(){
-const q=this.value.toLowerCase();
-document.querySelectorAll("tbody tr").forEach(r=>{
-r.style.display=r.innerText.toLowerCase().includes(q)?"":"none";
-});
+function closeModal(){
+    modal.style.display = "none";
+}
+
+document.getElementById("search").oninput = function(){
+    const q = this.value.toLowerCase();
+    document.querySelectorAll("#tbody tr").forEach(r=>{
+        r.style.display = r.innerText.toLowerCase().includes(q) ? "" : "none";
+    });
 };
 
 render();
@@ -277,4 +306,3 @@ render();
 
 </body>
 </html>
-
