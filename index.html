@@ -8,35 +8,35 @@
 body {
     font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
     background: #fff;
-    margin: 32px;
+    margin: 28px;
     color: #111;
 }
 
 h1 {
+    font-size: 20px;
     font-weight: 400;
-    font-size: 22px;
-    margin-bottom: 18px;
+    margin-bottom: 14px;
 }
 
 /* BUSCADOR */
 #search {
-    width: 280px;
-    font-size: 14px;
+    width: 260px;
+    font-size: 13px;
     border: none;
     border-bottom: 1px solid #111;
     outline: none;
-    padding: 4px 0;
+    padding: 2px 0;
 }
 
 /* TABLA */
 table {
     width: 100%;
     border-collapse: collapse;
-    margin-top: 18px;
+    margin-top: 16px;
 }
 
 th {
-    font-size: 12px;
+    font-size: 11px;
     font-weight: 500;
     text-transform: uppercase;
     letter-spacing: .04em;
@@ -45,29 +45,31 @@ th {
 }
 
 td {
-    padding: 4px 2px;
-    border-bottom: 1px solid #e5e5e5;
+    padding: 3px 2px;
+    border-bottom: 1px solid #e6e6e6;
     vertical-align: middle;
 }
 
-/* INPUTS FLOTANTES */
+/* INPUTS COMPLETAMENTE INVISIBLES */
 input[type="text"],
 input[type="number"] {
     border: none;
     background: transparent;
     outline: none;
     width: 100%;
-    font-size: 14px;
-    line-height: 1.2;
-    padding: 2px 0;
+    font-size: 13px;
+    line-height: 1.1;
+    padding: 0;
+    margin: 0;
+    box-shadow: none;
 }
 
 /* CHECK */
 input[type="checkbox"] {
-    transform: scale(.9);
+    transform: scale(.85);
 }
 
-/* BOTONES */
+/* BOTONES MINIMAL */
 button {
     background: none;
     border: none;
@@ -81,7 +83,7 @@ button:hover {
     opacity: .6;
 }
 
-/* MODAL */
+/* MODAL PORTADA */
 .modal {
     display: none;
     position: fixed;
@@ -96,10 +98,10 @@ button:hover {
     max-height: 80%;
 }
 
-/* FOOT ACTION */
+/* AGREGAR */
 .add {
-    margin-top: 14px;
-    font-size: 13px;
+    margin-top: 12px;
+    font-size: 12px;
 }
 </style>
 </head>
