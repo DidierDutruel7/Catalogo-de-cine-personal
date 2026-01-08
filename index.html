@@ -261,9 +261,21 @@ function delRow(i){
 function render(){
 
     // ordenar alfabéticamente por director
-    data.sort((a, b) =>
-        a.director.localeCompare(b.director, "es", { sensitivity: "base" })
+    data.sort((a, b) => {
+
+    // 1. ordenar por director
+    const dirCompare = a.director.localeCompare(
+        b.director,
+        "es",
+        { sensitivity: "base" }
     );
+
+    // si son distintos directores, usar ese orden
+    if (dirCompare !== 0) return dirCompare;
+
+    // 2. mismo director → ordenar por año (ascendente)
+    return (a.year || 0) - (b.year || 0);
+});
 
     const tb = document.getElementById("tbody");
     tb.innerHTML = "";
