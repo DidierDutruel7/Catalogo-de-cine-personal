@@ -2,364 +2,203 @@
 <html lang="es">
 <head>
 <meta charset="UTF-8">
-<title>Catálogo personal de cine</title>
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Archivo de Cine</title>
 
 <style>
-:root{
-    --bg:#fafafa;
-    --fg:#111;
-    --muted:#777;
-    --line:#e5e5e5;
+body {
+    font-family: Arial, sans-serif;
+    background: #fff;
+    margin: 40px;
 }
 
-body{
-    font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Arial,sans-serif;
-    background:var(--bg);
-    color:var(--fg);
-    margin:0;
-    padding:36px 18px;
+h1 {
+    font-weight: 400;
 }
 
-header{
-    text-align:center;
-    margin-bottom:22px;
+input[type="text"],
+input[type="number"] {
+    border: none;
+    background: transparent;
+    outline: none;
+    width: 100%;
+    font-size: 14px;
 }
 
-h1{
-    font-size:21px;
-    font-weight:500;
-    margin-bottom:16px;
+table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 20px;
 }
 
-#search{
-    width:100%;
-    max-width:520px;
-    padding:12px 16px;
-    font-size:15px;
-    border:1px solid var(--line);
-    border-radius:22px;
-    outline:none;
+th {
+    text-align: left;
+    font-weight: 600;
+    padding-bottom: 8px;
+    border-bottom: 1px solid #000;
 }
 
-.stats{
-    margin-top:12px;
-    font-size:12px;
-    color:var(--muted);
+td {
+    padding: 6px 4px;
+    border-bottom: 1px solid #ddd;
+    vertical-align: middle;
 }
 
-.tools{
-    position:fixed;
-    top:18px;
-    right:18px;
+button {
+    background: none;
+    border: none;
+    cursor: pointer;
+    font-size: 13px;
 }
 
-.tools button{
-    background:none;
-    border:1px solid var(--line);
-    border-radius:20px;
-    padding:7px 13px;
-    cursor:pointer;
+button:hover {
+    text-decoration: underline;
 }
 
-.tools-menu{
-    display:none;
-    position:absolute;
-    right:0;
-    margin-top:8px;
-    background:white;
-    border:1px solid var(--line);
-    border-radius:8px;
-    box-shadow:0 10px 30px rgba(0,0,0,.08);
+#search {
+    margin-top: 20px;
+    width: 300px;
+    border-bottom: 1px solid #000;
+    font-size: 14px;
 }
 
-.tools-menu button{
-    width:100%;
-    padding:9px 15px;
-    border:none;
-    background:none;
-    text-align:left;
-    cursor:pointer;
-    font-size:13px;
+.modal {
+    display: none;
+    position: fixed;
+    inset: 0;
+    background: rgba(0,0,0,.8);
+    align-items: center;
+    justify-content: center;
 }
 
-.tools-menu button:hover{
-    background:#f2f2f2;
-}
-
-table{
-    width:100%;
-    border-collapse:collapse;
-    margin-top:26px;
-}
-
-th{
-    font-size:11px;
-    font-weight:500;
-    color:var(--muted);
-    text-align:left;
-    padding:6px 8px;
-    border-bottom:1px solid var(--line);
-}
-
-td{
-    padding:6px 8px;
-    border-bottom:1px solid var(--line);
-    font-size:14px;
-    line-height:1.2;
-}
-
-/* Inputs totalmente flotantes */
-td input{
-    width:100%;
-    border:0 !important;
-    background:transparent !important;
-    box-shadow:none !important;
-    outline:none;
-    font-size:14px;
-    line-height:1.2;
-    padding:0;
-    appearance:none;
-    -webkit-appearance:none;
-    -moz-appearance:none;
-}
-
-/* restaurar checkbox */
-td input[type="checkbox"]{
-    appearance:auto;
-    -webkit-appearance:checkbox;
-    -moz-appearance:auto;
-    width:auto;
-    cursor:pointer;
-}
-
-/* quitar flechas del number */
-input[type=number]::-webkit-inner-spin-button,
-input[type=number]::-webkit-outer-spin-button{
-    -webkit-appearance:none;
-    margin:0;
-}
-input[type=number]{
-    -moz-appearance:textfield;
-}
-
-.delete{
-    color:#bbb;
-    cursor:pointer;
-    font-size:16px;
-    visibility:hidden;
-}
-
-tr:hover .delete{
-    visibility:visible;
-}
-
-.modal{
-    display:none;
-    position:fixed;
-    inset:0;
-    background:rgba(0,0,0,.85);
-    justify-content:center;
-    align-items:center;
-    z-index:10;
-}
-
-.modal img{
-    max-width:90%;
-    max-height:90%;
-}
-
-.modal span{
-    position:absolute;
-    top:20px;
-    right:30px;
-    font-size:28px;
-    color:white;
-    cursor:pointer;
+.modal img {
+    max-width: 80%;
+    max-height: 80%;
 }
 </style>
 </head>
 
 <body>
 
-<div class="tools">
-<button onclick="toggleTools()">☰</button>
-<div class="tools-menu" id="toolsMenu">
-<button onclick="addRow()">Añadir película</button>
-<button onclick="exportCSV()">Exportar CSV</button>
-<button onclick="importCSV()">Importar CSV</button>
-<button onclick="backup()">Guardar copia</button>
-<button onclick="restore()">Restaurar copia</button>
-</div>
-</div>
+<h1>Archivo de Cine</h1>
 
-<header>
-<h1>Catálogo personal de cine</h1>
-<input id="search" placeholder="Buscar… (dir:, nat:, prod:, pel:, año:)">
-<div class="stats">
-Vistas <span id="vistas">0</span> ·
-Pendientes <span id="pendientes">0</span> ·
-Total <span id="total">0</span>
-</div>
-</header>
+<input id="search" placeholder="Buscar…" oninput="render()">
 
 <table>
 <thead>
 <tr>
-<th>Director</th>
-<th>Película</th>
-<th>Nacionalidad</th>
-<th>País</th>
-<th>Año</th>
-<th>Vista</th>
-<th>Portada</th>
-<th></th>
+    <th>Director</th>
+    <th>Película</th>
+    <th>Nacionalidad</th>
+    <th>País</th>
+    <th>Año</th>
+    <th>Vista</th>
+    <th>Portada</th>
+    <th>Eliminar</th>
 </tr>
 </thead>
-<tbody id="tbody"></tbody>
+<tbody id="rows"></tbody>
 </table>
 
-<div class="modal" id="modal">
-<span onclick="closeModal()">×</span>
-<img id="modalImg">
+<button onclick="addRow()">+ Agregar película</button>
+
+<div class="modal" id="modal" onclick="this.style.display='none'">
+    <img id="modalImg">
 </div>
 
 <script>
-let data = JSON.parse(localStorage.getItem("peliculas")) || [];
+let data = JSON.parse(localStorage.getItem("films")) || [];
 
-function persist(){
-    localStorage.setItem("peliculas", JSON.stringify(data));
+function save() {
+    localStorage.setItem("films", JSON.stringify(data));
 }
 
-function toggleTools(){
-    const m = document.getElementById("toolsMenu");
-    m.style.display = m.style.display === "block" ? "none" : "block";
-}
-
-function addRow(){
+function addRow() {
     data.push({
-        director:"",
-        pelicula:"",
-        nacionalidad:"",
-        pais:"",
-        año:"",
-        portada:null,
-        vista:false
+        director: "",
+        title: "",
+        nationality: "",
+        country: "",
+        year: "",
+        seen: false,
+        cover: ""
     });
-    persist();
+    save();
     render();
 }
 
-function delRow(i){
-    if(confirm("¿Eliminar esta película?")){
-        data.splice(i,1);
-        persist();
+function removeRow(i) {
+    if (confirm("¿Eliminar esta película?")) {
+        data.splice(i, 1);
+        save();
         render();
     }
 }
 
-function render(){
+function openCover(src) {
+    if (!src) return;
+    document.getElementById("modalImg").src = src;
+    document.getElementById("modal").style.display = "flex";
+}
 
-    // ordenar alfabéticamente por director
+function uploadCover(e, i) {
+    const file = e.target.files[0];
+    if (!file) return;
+
+    const reader = new FileReader();
+    reader.onload = () => {
+        data[i].cover = reader.result;
+        save();
+        render();
+    };
+    reader.readAsDataURL(file);
+}
+
+function render() {
+    const tbody = document.getElementById("rows");
+    const q = document.getElementById("search").value.toLowerCase();
+
+    // 🔥 ORDEN CLAVE (DIRECTOR → AÑO)
     data.sort((a, b) => {
 
-    // 1. ordenar por director
-    const dirCompare = a.director.localeCompare(
-        b.director,
-        "es",
-        { sensitivity: "base" }
-    );
+        const d = a.director.localeCompare(
+            b.director,
+            "es",
+            { sensitivity: "base" }
+        );
 
-    // si son distintos directores, usar ese orden
-    if (dirCompare !== 0) return dirCompare;
+        if (d !== 0) return d;
 
-    // 2. mismo director → ordenar por año (ascendente)
-    return (a.year || 0) - (b.year || 0);
-});
+        return (parseInt(a.year) || 0) - (parseInt(b.year) || 0);
+    });
 
-    const tb = document.getElementById("tbody");
-    tb.innerHTML = "";
-    let vistas = 0;
+    tbody.innerHTML = "";
 
-    data.forEach((p,i)=>{
-        if(p.vista) vistas++;
+    data.forEach((f, i) => {
+        if (
+            !Object.values(f)
+                .join(" ")
+                .toLowerCase()
+                .includes(q)
+        ) return;
+
         const tr = document.createElement("tr");
+
         tr.innerHTML = `
-<td><input value="${p.director}" oninput="data[${i}].director=this.value;persist()"></td>
-<td><input value="${p.pelicula}" oninput="data[${i}].pelicula=this.value;persist()"></td>
-<td><input value="${p.nacionalidad}" oninput="data[${i}].nacionalidad=this.value;persist()"></td>
-<td><input value="${p.pais}" oninput="data[${i}].pais=this.value;persist()"></td>
-<td><input type="number" value="${p.año}" oninput="data[${i}].año=this.value;persist()"></td>
-<td><input type="checkbox" ${p.vista?"checked":""}
-    onchange="data[${i}].vista=this.checked;persist();render()"></td>
+<td><input value="${f.director}" oninput="data[${i}].director=this.value;save()"></td>
+<td><input value="${f.title}" oninput="data[${i}].title=this.value;save()"></td>
+<td><input value="${f.nationality}" oninput="data[${i}].nationality=this.value;save()"></td>
+<td><input value="${f.country}" oninput="data[${i}].country=this.value;save()"></td>
+<td><input type="number" value="${f.year}" oninput="data[${i}].year=this.value;save()"></td>
+<td><input type="checkbox" ${f.seen ? "checked" : ""} onchange="data[${i}].seen=this.checked;save()"></td>
 <td>
-<button onclick="imgUp(${i})">Subir</button>
-${p.portada ? `<button onclick="imgView(${i})">Ver</button>` : ""}
+    <button onclick="openCover('${f.cover}')">Ver</button>
+    <input type="file" accept="image/*" onchange="uploadCover(event, ${i})">
 </td>
-<td class="delete" onclick="delRow(${i})">×</td>
+<td><button onclick="removeRow(${i})">✕</button></td>
         `;
-        tb.appendChild(tr);
+        tbody.appendChild(tr);
     });
-
-    document.getElementById("vistas").textContent = vistas;
-    document.getElementById("total").textContent = data.length;
-    document.getElementById("pendientes").textContent = data.length - vistas;
 }
-
-function imgUp(i){
-    const f = document.createElement("input");
-    f.type = "file";
-    f.accept = "image/*";
-    f.onchange = ()=>{
-        const r = new FileReader();
-        r.onload = ()=>{
-            data[i].portada = r.result;
-            persist();
-            render();
-        };
-        r.readAsDataURL(f.files[0]);
-    };
-    f.click();
-}
-
-function imgView(i){
-    modalImg.src = data[i].portada;
-    modal.style.display = "flex";
-}
-
-function closeModal(){
-    modal.style.display = "none";
-}
-
-/* 🔍 BUSCADOR CON PREFIJOS */
-document.getElementById("search").oninput = function(){
-    const q = this.value.toLowerCase().trim();
-    let field = null;
-    let term = q;
-
-    if(q.includes(":")){
-        const parts = q.split(":");
-        field = parts[0];
-        term = parts.slice(1).join(":");
-    }
-
-    document.querySelectorAll("#tbody tr").forEach((r,i)=>{
-        const p = data[i];
-        let hay = false;
-
-        if(field){
-            if(field==="dir") hay = p.director.toLowerCase().includes(term);
-            if(field==="pel") hay = p.pelicula.toLowerCase().includes(term);
-            if(field==="nat") hay = p.nacionalidad.toLowerCase().includes(term);
-            if(field==="prod") hay = p.pais.toLowerCase().includes(term);
-            if(field==="año") hay = String(p.año).includes(term);
-        }else{
-            hay = Object.values(p).join(" ").toLowerCase().includes(term);
-        }
-
-        r.style.display = hay ? "" : "none";
-    });
-};
 
 render();
 </script>
