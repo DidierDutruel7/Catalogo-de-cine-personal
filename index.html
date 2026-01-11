@@ -3,6 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <title>Catálogo personal de cine</title>
+
 <style>
 body {
   font-family: system-ui, -apple-system, BlinkMacSystemFont, sans-serif;
@@ -11,11 +12,52 @@ body {
   color: #111;
 }
 
-h1 {
+/* ---------- HEADER ---------- */
+header {
+  position: relative;
   text-align: center;
+}
+
+h1 {
   font-weight: 500;
 }
 
+#menuBtn {
+  position: absolute;
+  top: 0;
+  right: 0;
+  border-radius: 50%;
+  width: 36px;
+  height: 36px;
+  font-size: 18px;
+}
+
+/* ---------- MENU ---------- */
+#menu {
+  position: absolute;
+  right: 0;
+  top: 45px;
+  background: #fff;
+  border: 1px solid #ddd;
+  box-shadow: 0 8px 24px rgba(0,0,0,.08);
+  display: none;
+  animation: fadeDown .2s ease;
+}
+
+#menu button {
+  display: block;
+  width: 100%;
+  border: none;
+  background: none;
+  text-align: left;
+  padding: 10px 16px;
+}
+
+#menu button:hover {
+  background: #f5f5f5;
+}
+
+/* ---------- SEARCH & COUNTER ---------- */
 #search {
   display: block;
   margin: 20px auto;
@@ -32,6 +74,7 @@ h1 {
   margin-bottom: 30px;
 }
 
+/* ---------- TABLE ---------- */
 table {
   width: 100%;
   border-collapse: collapse;
@@ -43,9 +86,12 @@ th, td {
   border-bottom: 1px solid #eee;
 }
 
+tr:hover {
+  background: #fafafa;
+}
+
 th {
   font-weight: 500;
-  text-align: left;
   color: #666;
 }
 
@@ -61,36 +107,70 @@ button:hover {
   background: #f5f5f5;
 }
 
-/* Modal */
-#modal {
+/* ---------- MODALS ---------- */
+.modal {
   position: fixed;
   inset: 0;
-  background: rgba(0,0,0,.8);
+  background: rgba(0,0,0,.75);
   display: none;
   align-items: center;
   justify-content: center;
+  animation: fadeIn .25s ease;
 }
 
-#modal img {
-  max-height: 90vh;
+.modal img {
   max-width: 90vw;
+  max-height: 90vh;
+  animation: zoomIn .25s ease;
 }
 
-#modal span {
-  position: absolute;
-  top: 20px;
-  right: 30px;
-  font-size: 28px;
-  color: #fff;
-  cursor: pointer;
+/* ---------- ADD FORM ---------- */
+#addForm {
+  background: #fff;
+  padding: 30px;
+  width: 360px;
+  box-shadow: 0 12px 30px rgba(0,0,0,.15);
+  animation: fadeUp .25s ease;
+}
+
+#addForm input {
+  width: 100%;
+  margin-bottom: 12px;
+  padding: 8px;
+  border: 1px solid #ddd;
+}
+
+/* ---------- ANIMATIONS ---------- */
+@keyframes fadeIn {
+  from {opacity:0}
+  to {opacity:1}
+}
+@keyframes zoomIn {
+  from {transform:scale(.96)}
+  to {transform:scale(1)}
+}
+@keyframes fadeUp {
+  from {opacity:0; transform:translateY(10px)}
+  to {opacity:1; transform:none}
+}
+@keyframes fadeDown {
+  from {opacity:0; transform:translateY(-10px)}
+  to {opacity:1; transform:none}
 }
 </style>
 </head>
+
 <body>
 
-<h1>Catálogo personal de cine</h1>
+<header>
+  <h1>Catálogo personal de cine</h1>
+  <button id="menuBtn" onclick="toggleMenu()">≡</button>
+  <div id="menu">
+    <button onclick="openAdd()">Añadir película</button>
+  </div>
+</header>
 
-<input id="search" placeholder="Buscar… (dir., pel., año)">
+<input id="search" placeholder="Buscar…">
 <div id="counter"></div>
 
 <table>
@@ -108,77 +188,98 @@ button:hover {
 <tbody id="tbody"></tbody>
 </table>
 
-<div id="modal">
-  <span onclick="closeModal()">×</span>
-  <img id="modalImg">
+<!-- MODAL PORTADA -->
+<div class="modal" id="coverModal" onclick="closeCover(event)">
+  <img id="coverImg">
+</div>
+
+<!-- MODAL AÑADIR -->
+<div class="modal" id="addModal" onclick="closeAdd(event)">
+  <div id="addForm">
+    <input placeholder="Director" id="d">
+    <input placeholder="Año" id="y">
+    <input placeholder="Película" id="t">
+    <input placeholder="Nacionalidad" id="n">
+    <input placeholder="País" id="c">
+    <button onclick="addMovie()">Guardar</button>
+  </div>
 </div>
 
 <script>
 let movies = JSON.parse(localStorage.getItem("movies")) || [];
 
-function save() {
-  localStorage.setItem("movies", JSON.stringify(movies));
-}
+function save(){localStorage.setItem("movies",JSON.stringify(movies));}
 
-function sortMovies() {
-  movies.sort((a,b) => {
-    if (a.director !== b.director) {
-      return a.director.localeCompare(b.director);
-    }
-    return a.year - b.year;
+function sortMovies(){
+  movies.sort((a,b)=>{
+    if(a.director!==b.director) return a.director.localeCompare(b.director);
+    return a.year-b.year;
   });
 }
 
-function updateCounter() {
-  const seen = movies.filter(m => m.seen).length;
-  counter.textContent = `Vistas ${seen} · Pendientes ${movies.length - seen} · Total ${movies.length}`;
+function updateCounter(){
+  const seen = movies.filter(m=>m.seen).length;
+  counter.textContent=`Vistas ${seen} · Pendientes ${movies.length-seen} · Total ${movies.length}`;
 }
 
-function render() {
+function render(){
   sortMovies();
-  tbody.innerHTML = "";
-  movies.forEach((m,i) => {
-    const tr = document.createElement("tr");
-    tr.innerHTML = `
+  tbody.innerHTML="";
+  movies.forEach((m,i)=>{
+    tbody.innerHTML+=`
+    <tr>
       <td>${m.director}</td>
       <td>${m.year}</td>
       <td>${m.title}</td>
       <td>${m.nationality}</td>
       <td>${m.country}</td>
-      <td><input type="checkbox" ${m.seen ? "checked":""} onchange="toggleSeen(${i})"></td>
+      <td><input type="checkbox" ${m.seen?"checked":""} onchange="toggleSeen(${i})"></td>
       <td>
         <input type="file" onchange="uploadCover(event,${i})">
-        ${m.cover ? `<button onclick="viewCover(${i})">Ver</button>` : ""}
+        ${m.cover?`<button onclick="viewCover(${i})">Ver</button>`:""}
       </td>
-    `;
-    tbody.appendChild(tr);
+    </tr>`;
   });
   updateCounter();
 }
 
-function toggleSeen(i) {
-  movies[i].seen = !movies[i].seen;
+function toggleSeen(i){movies[i].seen=!movies[i].seen;save();updateCounter();}
+
+function uploadCover(e,i){
+  const r=new FileReader();
+  r.onload=()=>{movies[i].cover=r.result;save();render();}
+  r.readAsDataURL(e.target.files[0]);
+}
+
+function viewCover(i){
+  coverImg.src=movies[i].cover;
+  coverModal.style.display="flex";
+}
+
+function closeCover(e){
+  if(e.target.id==="coverModal") coverModal.style.display="none";
+}
+
+function toggleMenu(){menu.style.display=menu.style.display?"":"block";}
+
+function openAdd(){addModal.style.display="flex";menu.style.display="none";}
+
+function closeAdd(e){
+  if(e.target.id==="addModal") addModal.style.display="none";
+}
+
+function addMovie(){
+  movies.push({
+    director:d.value,
+    year:+y.value,
+    title:t.value,
+    nationality:n.value,
+    country:c.value,
+    seen:false
+  });
   save();
-  updateCounter();
-}
-
-function uploadCover(e,i) {
-  const reader = new FileReader();
-  reader.onload = () => {
-    movies[i].cover = reader.result;
-    save();
-    render();
-  };
-  reader.readAsDataURL(e.target.files[0]);
-}
-
-function viewCover(i) {
-  modalImg.src = movies[i].cover;
-  modal.style.display = "flex";
-}
-
-function closeModal() {
-  modal.style.display = "none";
+  addModal.style.display="none";
+  render();
 }
 
 render();
