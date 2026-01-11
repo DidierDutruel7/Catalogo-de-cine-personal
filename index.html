@@ -2,345 +2,239 @@
 <html lang="es">
 <head>
 <meta charset="UTF-8">
-<title>Catálogo personal de cine</title>
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Catálogo de Cine</title>
 
 <style>
-:root{
-    --bg:#fafafa;
-    --fg:#111;
-    --muted:#777;
-    --line:#e5e5e5;
+body {
+  font-family: Arial, sans-serif;
+  background: #111;
+  color: #eee;
+  margin: 0;
+  padding: 20px;
 }
 
-body{
-    font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Arial,sans-serif;
-    background:var(--bg);
-    color:var(--fg);
-    margin:0;
-    padding:36px 18px;
+h1 { margin-bottom: 10px; }
+
+button {
+  background: #333;
+  color: #eee;
+  border: 1px solid #555;
+  padding: 5px 10px;
+  cursor: pointer;
 }
 
-header{
-    text-align:center;
-    margin-bottom:22px;
+button:hover { background: #555; }
+
+table {
+  width: 100%;
+  border-collapse: collapse;
+  margin-top: 10px;
 }
 
-h1{
-    font-size:21px;
-    font-weight:500;
-    margin-bottom:16px;
+th, td {
+  border: 1px solid #444;
+  padding: 6px;
+  text-align: left;
 }
 
-#search{
-    width:100%;
-    max-width:520px;
-    padding:12px 16px;
-    font-size:15px;
-    border:1px solid var(--line);
-    border-radius:22px;
-    outline:none;
+th { background: #222; }
+
+input[type="text"],
+input[type="number"] {
+  width: 100%;
+  background: transparent;
+  color: #eee;
+  border: none;
+  outline: none;
 }
 
-.stats{
-    margin-top:12px;
-    font-size:12px;
-    color:var(--muted);
+input[type="checkbox"] {
+  transform: scale(1.1);
 }
 
-.tools{
-    position:fixed;
-    top:18px;
-    right:18px;
-}
-
-.tools button{
-    background:none;
-    border:1px solid var(--line);
-    border-radius:20px;
-    padding:7px 13px;
-    cursor:pointer;
-}
-
-.tools-menu{
-    display:none;
-    position:absolute;
-    right:0;
-    margin-top:8px;
-    background:white;
-    border:1px solid var(--line);
-    border-radius:8px;
-    box-shadow:0 10px 30px rgba(0,0,0,.08);
-}
-
-.tools-menu button{
-    width:100%;
-    padding:9px 15px;
-    border:none;
-    background:none;
-    text-align:left;
-    cursor:pointer;
-    font-size:13px;
-}
-
-.tools-menu button:hover{
-    background:#f2f2f2;
-}
-
-table{
-    width:100%;
-    border-collapse:collapse;
-    margin-top:26px;
-}
-
-th{
-    font-size:11px;
-    font-weight:500;
-    color:var(--muted);
-    text-align:left;
-    padding:6px 8px;
-    border-bottom:1px solid var(--line);
-}
-
-td{
-    padding:6px 8px;
-    border-bottom:1px solid var(--line);
-    font-size:14px;
-    line-height:1.2;
-}
-
-/* Inputs totalmente flotantes */
-td input{
-    width:100%;
-    border:0 !important;
-    background:transparent !important;
-    box-shadow:none !important;
-    outline:none;
-    font-size:14px;
-    line-height:1.2;
-    padding:0;
-    appearance:none;
-    -webkit-appearance:none;
-    -moz-appearance:none;
-}
-
-/* quitar flechas del number */
-input[type=number]::-webkit-inner-spin-button,
-input[type=number]::-webkit-outer-spin-button{
-    -webkit-appearance:none;
-    margin:0;
-}
-input[type=number]{
-    -moz-appearance:textfield;
-}
-
-.delete{
-    color:#bbb;
-    cursor:pointer;
-    font-size:16px;
-    visibility:hidden;
-}
-
-tr:hover .delete{
-    visibility:visible;
-}
-
-.modal{
-    display:none;
-    position:fixed;
-    inset:0;
-    background:rgba(0,0,0,.85);
-    justify-content:center;
-    align-items:center;
-    z-index:10;
-}
-
-.modal img{
-    max-width:90%;
-    max-height:90%;
-}
-
-.modal span{
-    position:absolute;
-    top:20px;
-    right:30px;
-    font-size:28px;
-    color:white;
-    cursor:pointer;
+#contador {
+  margin-top: 10px;
+  font-size: 14px;
+  opacity: .9;
 }
 </style>
 </head>
 
 <body>
 
-<div class="tools">
-<button onclick="toggleTools()">☰</button>
-<div class="tools-menu" id="toolsMenu">
-<button onclick="addRow()">Añadir película</button>
-<button onclick="exportCSV()">Exportar CSV</button>
-<button onclick="importCSV()">Importar CSV</button>
-<button onclick="backup()">Guardar copia</button>
-<button onclick="restore()">Restaurar copia</button>
-</div>
-</div>
-
-<header>
-<h1>Catálogo personal de cine</h1>
-<input id="search" placeholder="Buscar… (dir:, nat:, prod:, pel:, año:)">
-<div class="stats">
-Vistas <span id="vistas">0</span> ·
-Pendientes <span id="pendientes">0</span> ·
-Total <span id="total">0</span>
-</div>
-</header>
+<h1>Catálogo de Cine</h1>
+<button id="addMovie">+ Añadir película</button>
+<div id="contador">Vistas 0 · Pendientes 0 · Total 0</div>
 
 <table>
 <thead>
 <tr>
-<th>Director</th>
-<th>Película</th>
-<th>Nacionalidad</th>
-<th>País</th>
-<th>Año</th>
-<th>Vista</th>
-<th>Portada</th>
-<th></th>
+  <th>Director</th>
+  <th>Película</th>
+  <th>Nacionalidad</th>
+  <th>País</th>
+  <th>Año</th>
+  <th>Vista</th>
+  <th>Portada</th>
+  <th></th>
 </tr>
 </thead>
-<tbody id="tbody"></tbody>
+<tbody></tbody>
 </table>
 
-<div class="modal" id="modal">
-<span onclick="closeModal()">×</span>
-<img id="modalImg">
-</div>
-
 <script>
-let data = JSON.parse(localStorage.getItem("peliculas")) || [];
+let db;
+const DB_NAME = "catalogoCine";
+const STORE = "peliculas";
 
-function persist(){
-    localStorage.setItem("peliculas", JSON.stringify(data));
-}
-
-function toggleTools(){
-    const m = document.getElementById("toolsMenu");
-    m.style.display = m.style.display === "block" ? "none" : "block";
-}
-
-function addRow(){
-    data.push({
-        director:"",
-        pelicula:"",
-        nacionalidad:"",
-        pais:"",
-        año:"",
-        portada:null,
-        vista:false
-    });
-    persist();
-    render();
-}
-
-function delRow(i){
-    if(confirm("¿Eliminar esta película?")){
-        data.splice(i,1);
-        persist();
-        render();
-    }
-}
-
-function render(){
-
-    // ordenar alfabéticamente por director
-    data.sort((a, b) =>
-        a.director.localeCompare(b.director, "es", { sensitivity: "base" })
-    );
-
-    const tb = document.getElementById("tbody");
-    tb.innerHTML = "";
-    let vistas = 0;
-
-    data.forEach((p,i)=>{
-        if(p.vista) vistas++;
-        const tr = document.createElement("tr");
-        tr.innerHTML = `
-<td><input value="${p.director}" oninput="data[${i}].director=this.value;persist()"></td>
-<td><input value="${p.pelicula}" oninput="data[${i}].pelicula=this.value;persist()"></td>
-<td><input value="${p.nacionalidad}" oninput="data[${i}].nacionalidad=this.value;persist()"></td>
-<td><input value="${p.pais}" oninput="data[${i}].pais=this.value;persist()"></td>
-<td><input type="number" value="${p.año}" oninput="data[${i}].año=this.value;persist()"></td>
-<td><input type="checkbox" ${p.vista?"checked":""}
-    onchange="data[${i}].vista=this.checked;persist();render()"></td>
-<td>
-<button onclick="imgUp(${i})">Subir</button>
-${p.portada ? `<button onclick="imgView(${i})">Ver</button>` : ""}
-</td>
-<td class="delete" onclick="delRow(${i})">×</td>
-        `;
-        tb.appendChild(tr);
-    });
-
-    document.getElementById("vistas").textContent = vistas;
-    document.getElementById("total").textContent = data.length;
-    document.getElementById("pendientes").textContent = data.length - vistas;
-}
-
-function imgUp(i){
-    const f = document.createElement("input");
-    f.type = "file";
-    f.accept = "image/*";
-    f.onchange = ()=>{
-        const r = new FileReader();
-        r.onload = ()=>{
-            data[i].portada = r.result;
-            persist();
-            render();
-        };
-        r.readAsDataURL(f.files[0]);
-    };
-    f.click();
-}
-
-function imgView(i){
-    modalImg.src = data[i].portada;
-    modal.style.display = "flex";
-}
-
-function closeModal(){
-    modal.style.display = "none";
-}
-
-/* 🔍 BUSCADOR CON PREFIJOS */
-document.getElementById("search").oninput = function(){
-    const q = this.value.toLowerCase().trim();
-    let field = null;
-    let term = q;
-
-    if(q.includes(":")){
-        const parts = q.split(":");
-        field = parts[0];
-        term = parts.slice(1).join(":");
-    }
-
-    document.querySelectorAll("#tbody tr").forEach((r,i)=>{
-        const p = data[i];
-        let hay = false;
-
-        if(field){
-            if(field==="dir") hay = p.director.toLowerCase().includes(term);
-            if(field==="pel") hay = p.pelicula.toLowerCase().includes(term);
-            if(field==="nat") hay = p.nacionalidad.toLowerCase().includes(term);
-            if(field==="prod") hay = p.pais.toLowerCase().includes(term);
-            if(field==="año") hay = String(p.año).includes(term);
-        }else{
-            hay = Object.values(p).join(" ").toLowerCase().includes(term);
-        }
-
-        r.style.display = hay ? "" : "none";
-    });
+indexedDB.open(DB_NAME, 1).onupgradeneeded = e => {
+  const db = e.target.result;
+  db.createObjectStore(STORE, { keyPath: "id", autoIncrement: true });
 };
 
-render();
+indexedDB.open(DB_NAME, 1).onsuccess = e => {
+  db = e.target.result;
+  cargarPeliculas();
+};
+
+function guardarPelicula(p) {
+  db.transaction(STORE, "readwrite").objectStore(STORE).add(p);
+}
+
+function obtenerPeliculas(cb) {
+  db.transaction(STORE).objectStore(STORE).getAll().onsuccess =
+    e => cb(e.target.result);
+}
+
+function actualizarPelicula(p) {
+  db.transaction(STORE, "readwrite").objectStore(STORE).put(p);
+}
+
+const tbody = document.querySelector("tbody");
+
+function render(peliculas) {
+  peliculas.sort((a,b)=>{
+    if (a.director !== b.director) {
+      return a.director.localeCompare(b.director);
+    }
+    return a.anio - b.anio;
+  });
+
+  tbody.innerHTML = "";
+
+  peliculas.forEach(p => {
+    const tr = document.createElement("tr");
+    tr.dataset.id = p.id;
+
+    tr.innerHTML = `
+      <td><input data-field="director" value="${p.director}"></td>
+      <td><input data-field="pelicula" value="${p.pelicula}"></td>
+      <td><input data-field="nacionalidad" value="${p.nacionalidad}"></td>
+      <td><input data-field="pais" value="${p.pais}"></td>
+      <td><input data-field="anio" type="number" value="${p.anio}"></td>
+      <td><input data-field="vista" type="checkbox" ${p.vista ? "checked" : ""}></td>
+      <td>
+        <button data-action="subir">Subir</button>
+        ${p.portada ? `<button data-action="ver">Ver</button>` : ""}
+        <input type="file" accept="image/*" hidden>
+      </td>
+      <td><button data-action="eliminar">✕</button></td>
+    `;
+    tbody.appendChild(tr);
+  });
+
+  actualizarContadores(peliculas);
+}
+
+function cargarPeliculas() {
+  obtenerPeliculas(render);
+}
+
+tbody.addEventListener("input", e => {
+  const tr = e.target.closest("tr");
+  if (!tr) return;
+
+  const id = +tr.dataset.id;
+
+  obtenerPeliculas(peliculas => {
+    const p = peliculas.find(x => x.id === id);
+    if (!p) return;
+
+    p.director = tr.querySelector('[data-field="director"]').value;
+    p.pelicula = tr.querySelector('[data-field="pelicula"]').value;
+    p.nacionalidad = tr.querySelector('[data-field="nacionalidad"]').value;
+    p.pais = tr.querySelector('[data-field="pais"]').value;
+    p.anio = +tr.querySelector('[data-field="anio"]').value;
+
+    actualizarPelicula(p);
+  });
+});
+
+tbody.addEventListener("change", e => {
+  const tr = e.target.closest("tr");
+  if (!tr) return;
+  const id = +tr.dataset.id;
+
+  obtenerPeliculas(peliculas => {
+    const p = peliculas.find(x => x.id === id);
+
+    if (e.target.type === "checkbox") {
+      p.vista = e.target.checked;
+      actualizarPelicula(p);
+      actualizarContadores(peliculas);
+    }
+
+    if (e.target.type === "file") {
+      const reader = new FileReader();
+      reader.onload = () => {
+        p.portada = reader.result;
+        actualizarPelicula(p);
+        cargarPeliculas();
+      };
+      reader.readAsDataURL(e.target.files[0]);
+    }
+  });
+});
+
+tbody.addEventListener("click", e => {
+  const tr = e.target.closest("tr");
+  if (!tr) return;
+  const id = +tr.dataset.id;
+
+  if (e.target.dataset.action === "eliminar") {
+    db.transaction(STORE,"readwrite").objectStore(STORE).delete(id);
+    cargarPeliculas();
+  }
+
+  if (e.target.dataset.action === "subir") {
+    tr.querySelector('input[type="file"]').click();
+  }
+
+  if (e.target.dataset.action === "ver") {
+    obtenerPeliculas(peliculas => {
+      const p = peliculas.find(x => x.id === id);
+      const modal = document.createElement("div");
+      modal.style = "position:fixed;inset:0;background:rgba(0,0,0,.85);display:flex;align-items:center;justify-content:center";
+      modal.innerHTML = `<img src="${p.portada}" style="max-width:90%">`;
+      modal.onclick = () => modal.remove();
+      document.body.appendChild(modal);
+    });
+  }
+});
+
+function actualizarContadores(peliculas) {
+  const vistas = peliculas.filter(p => p.vista).length;
+  document.querySelector("#contador").textContent =
+    `Vistas ${vistas} · Pendientes ${peliculas.length - vistas} · Total ${peliculas.length}`;
+}
+
+document.querySelector("#addMovie").onclick = () => {
+  guardarPelicula({
+    director:"", pelicula:"", nacionalidad:"",
+    pais:"", anio:"", vista:false, portada:null
+  });
+  cargarPeliculas();
+};
 </script>
 
 </body>
